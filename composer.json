@@ -1,0 +1,45 @@
+{
+    "name": "technodelight/php-jira-client",
+    "description": "JIRA PHP client",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">= 7.4",
+        "ext-json": "*",
+        "ext-curl": "*",
+        "guzzlehttp/guzzle": "^6.2",
+        "sirprize/queried": "^0.1.0",
+        "icanboogie/storage": "^2.1",
+        "technodelight/php-jira-domain-models": "^1.4"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master",
+        "behat/behat": "^3.3",
+        "phpspec/phpspec": "^2.5"
+    },
+    "authors": [
+        {
+            "name": "Zsolt Gál",
+            "email": "zenc@zenc.hu"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Technodelight\\JiraRestApi\\": "src"
+        }
+    },
+    "config": {
+      "bin-dir": "bin"
+    },
+    "scripts": {
+        "test": [
+            "@test-unit"
+        ],
+        "test-unit": [
+            "bin/phpspec --ansi run -fpretty"
+        ],
+        "test-acceptance": [
+            "bin/behat --colors"
+        ]
+    },
+    "autoload-dev": {"psr-0": {"": "features/bootstrap"}}
+}
