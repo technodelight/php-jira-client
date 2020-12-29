@@ -1,0 +1,5 @@
+composer_suite_detection: true
+suites:
+    default:
+        namespace: Technodelight\JiraRestApi
+        psr4_prefix: Technodelight\JiraRestApi
