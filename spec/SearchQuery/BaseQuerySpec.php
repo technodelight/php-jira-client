@@ -3,7 +3,7 @@
 namespace spec\Technodelight\JiraRestApi\SearchQuery;
 
 use PhpSpec\ObjectBehavior;
-use Technodelight\Jira\Api\JiraRestApi\SearchQuery\Condition;
+use Technodelight\JiraRestApi\SearchQuery\Condition;
 
 class BaseQuerySpec extends ObjectBehavior
 {

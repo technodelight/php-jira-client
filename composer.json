@@ -14,7 +14,7 @@
     "require-dev": {
         "roave/security-advisories": "dev-master",
         "behat/behat": "^3.3",
-        "phpspec/phpspec": "^2.5"
+        "phpspec/phpspec": "^6.2"
     },
     "authors": [
         {
@@ -23,8 +23,8 @@
         }
     ],
     "autoload": {
-        "psr-0": {
-            "Technodelight\\JiraRestApi\\": "src"
+        "psr-4": {
+            "Technodelight\\JiraRestApi\\": "src/"
         }
     },
     "config": {
@@ -41,5 +41,12 @@
             "bin/behat --colors"
         ]
     },
-    "autoload-dev": {"psr-0": {"": "features/bootstrap"}}
+    "autoload-dev": {
+        "psr-0": {
+            "": "features/bootstrap"
+        },
+        "psr-4": {
+            "spec\\Technodelight\\JiraRestApi\\": "spec/"
+        }
+    }
 }

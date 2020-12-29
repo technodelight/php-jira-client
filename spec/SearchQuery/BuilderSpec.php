@@ -5,8 +5,8 @@ namespace spec\Technodelight\JiraRestApi\SearchQuery;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
-use Technodelight\Jira\Api\JiraRestApi\SearchQuery\BaseQuery;
-use Technodelight\Jira\Api\JiraRestApi\SearchQuery\Condition as SearchCondition;
+use Technodelight\JiraRestApi\SearchQuery\BaseQuery;
+use Technodelight\JiraRestApi\SearchQuery\Condition as SearchCondition;
 
 class BuilderSpec extends ObjectBehavior
 {
