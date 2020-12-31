@@ -1,4 +1,4 @@
-composer_suite_detection: true
+composer_suite_detection: false
 suites:
     default:
         namespace: Technodelight\JiraRestApi

@@ -5,9 +5,9 @@ namespace spec\Technodelight\JiraRestApi\Api;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Technodelight\Jira\Domain\Issue;
+use Technodelight\Jira\Domain\Issue\Changelog\Collection;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 use Technodelight\Jira\Domain\Issue\Meta;
-use Technodelight\JiraRestApi\Api\IssueApi;
 use Technodelight\JiraRestApi\Api\IssueApi\IssueCreateMeta;
 use Technodelight\JiraRestApi\Api\IssueApi\IssueNotificationData;
 use Technodelight\JiraRestApi\Api\IssueApi\IssueUpdateData;
@@ -56,9 +56,16 @@ class IssueApiSpec extends ObjectBehavior
 
     function it_retrieves_changelogs(Client $client)
     {
-        $client->get(Argument::type('string'), [])->shouldBeCalled()->willReturn([]);
+        $client->get(Argument::type('string'), [])->shouldBeCalled()->willReturn([
+            'self' => 'https://your-domain.atlassian.net/rest/api/3/issue/DEV-123/changelog',
+            'startAt' => 0,
+            'maxResults' => 5,
+            'total' => 5,
+            'isLast' => true,
+            'values' => []
+        ]);
 
-        $this->changeLogs(IssueKey::fromString('DEV-123'));
+        $this->changeLogs(IssueKey::fromString('DEV-123'))->shouldBeAnInstanceOf(Collection::class);
     }
 
     function it_sends_notifications(Client $client)

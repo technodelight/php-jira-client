@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Technodelight\JiraRestApi\Api;
 
 use Technodelight\Jira\Domain\Issue;
+use Technodelight\Jira\Domain\Issue\Changelog;
+use Technodelight\Jira\Domain\Issue\Changelog\Collection as ChangelogCollection;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 use Technodelight\Jira\Domain\Issue\Meta;
 use Technodelight\JiraRestApi\Api\IssueApi\IssueCreateMeta;
@@ -101,12 +103,14 @@ class IssueApi
      * @param IssueKey $issueKey
      * @param int|null $startAt
      * @param int|null $maxResults
-     * @return array
+     * @return ChangelogCollection
      */
-    public function changeLogs(IssueKey $issueKey, ?int $startAt = null, ?int $maxResults = null): array
+    public function changeLogs(IssueKey $issueKey, ?int $startAt = null, ?int $maxResults = null): ChangelogCollection
     {
-        return $this->client->get(
-            sprintf('issue/%s/changelogs', $issueKey), array_filter(['startAt' => $startAt, 'maxResults' => $maxResults])
+        return ChangelogCollection::fromResult(
+            $this->client->get(
+                sprintf('issue/%s/changelogs', $issueKey), array_filter(['startAt' => $startAt, 'maxResults' => $maxResults])
+            )
         );
     }
 

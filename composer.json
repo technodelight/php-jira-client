@@ -24,7 +24,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "Technodelight\\JiraRestApi\\": "src/"
+            "Technodelight\\JiraRestApi\\": "src/",
+            "Technodelight\\Jira\\Domain\\": "domain/"
         }
     },
     "config": {
