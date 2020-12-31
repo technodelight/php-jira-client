@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Technodelight\JiraRestApi\Api;
 
 use Technodelight\Jira\Domain\Issue;
-use Technodelight\Jira\Domain\Issue\Changelog;
 use Technodelight\Jira\Domain\Issue\Changelog\Collection as ChangelogCollection;
+use Technodelight\Jira\Domain\Issue\CreateMeta;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 use Technodelight\Jira\Domain\Issue\Meta;
-use Technodelight\JiraRestApi\Api\IssueApi\IssueCreateMeta;
-use Technodelight\JiraRestApi\Api\IssueApi\IssueNotificationData;
-use Technodelight\JiraRestApi\Api\IssueApi\IssueUpdateData;
+use Technodelight\Jira\Domain\Issue\NotificationDetails;
+use Technodelight\Jira\Domain\Issue\UpdateData;
 use Technodelight\JiraRestApi\Client;
 
 class IssueApi
@@ -54,10 +53,10 @@ class IssueApi
      * in the update parameter.
      *
      * @param IssueKey $issueKey
-     * @param IssueUpdateData $updateData
+     * @param UpdateData $updateData
      * @return Issue
      */
-    public function update(IssueKey $issueKey, IssueUpdateData $updateData): Issue
+    public function update(IssueKey $issueKey, UpdateData $updateData): Issue
     {
         $this->client->put(sprintf('issue/%s', $issueKey), $updateData->asArray());
 
@@ -119,9 +118,9 @@ class IssueApi
      *
      * @see https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-editmeta-get
      * @param IssueKey $issueKey
-     * @param IssueNotificationData $notificationData
+     * @param NotificationDetails $notificationData
      */
-    public function notify(IssueKey $issueKey, IssueNotificationData $notificationData): void
+    public function notify(IssueKey $issueKey, NotificationDetails $notificationData): void
     {
         $this->client->post(sprintf('issue/%s/notify', $issueKey), $notificationData->asArray());
     }
@@ -134,11 +133,11 @@ class IssueApi
      * that invalid project, issue type, or project and issue type combinations do not generate errors.
      *
      * @see https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-createmeta-get
-     * @return IssueCreateMeta
+     * @return CreateMeta
      */
-    public function createMeta(): IssueCreateMeta
+    public function createMeta(): CreateMeta
     {
-        return IssueCreateMeta::fromArray($this->client->get('issue/createmeta'));
+        return CreateMeta::fromArray($this->client->get('issue/createmeta'));
     }
 
     /**

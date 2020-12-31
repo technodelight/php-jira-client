@@ -8,9 +8,9 @@ use Technodelight\Jira\Domain\Issue;
 use Technodelight\Jira\Domain\Issue\Changelog\Collection;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 use Technodelight\Jira\Domain\Issue\Meta;
-use Technodelight\JiraRestApi\Api\IssueApi\IssueCreateMeta;
-use Technodelight\JiraRestApi\Api\IssueApi\IssueNotificationData;
-use Technodelight\JiraRestApi\Api\IssueApi\IssueUpdateData;
+use Technodelight\Jira\Domain\Issue\CreateMeta;
+use Technodelight\Jira\Domain\Issue\NotificationDetails;
+use Technodelight\Jira\Domain\Issue\UpdateData;
 use Technodelight\JiraRestApi\Client;
 
 class IssueApiSpec extends ObjectBehavior
@@ -37,7 +37,7 @@ class IssueApiSpec extends ObjectBehavior
     {
         $client->put(Argument::type('string'), Argument::type('array'))->shouldBeCalled()->willReturn([]);
 
-        $this->update(IssueKey::fromString('DEV-123'), IssueUpdateData::createEmpty())->shouldBeAnInstanceOf(Issue::class);
+        $this->update(IssueKey::fromString('DEV-123'), UpdateData::createEmpty())->shouldBeAnInstanceOf(Issue::class);
     }
 
     function it_can_assign_to_a_user(Client $client)
@@ -72,14 +72,14 @@ class IssueApiSpec extends ObjectBehavior
     {
         $client->post(Argument::type('string'), Argument::type('array'))->shouldBeCalled();
 
-        $this->notify(IssueKey::fromString('DEV-123'), IssueNotificationData::createEmpty());
+        $this->notify(IssueKey::fromString('DEV-123'), NotificationDetails::createEmpty());
     }
 
     function it_gets_create_metadata(Client $client)
     {
         $client->get(Argument::type('string'))->shouldBeCalled()->willReturn([]);
 
-        $this->createMeta()->shouldBeAnInstanceOf(IssueCreateMeta::class);
+        $this->createMeta()->shouldBeAnInstanceOf(CreateMeta::class);
     }
 
     function it_gets_edit_metadata(Client $client)

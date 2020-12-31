@@ -3,3 +3,8 @@ suites:
     default:
         namespace: Technodelight\JiraRestApi
         psr4_prefix: Technodelight\JiraRestApi
+    domain:
+        namespace: Technodelight\Jira\Domain
+        psr4_prefix: Technodelight\Jira\Domain
+        src_path: domain
+        spec_prefix: spec_domain

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Technodelight\JiraRestApi\Api\IssueApi;
+namespace Technodelight\Jira\Domain\Issue;
 
-final class IssueCreateMeta
+final class CreateMeta
 {
     public static function createEmpty(): self
     {
