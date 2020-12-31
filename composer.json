@@ -35,10 +35,10 @@
             "@test-unit"
         ],
         "test-unit": [
-            "bin/phpspec --ansi run -fpretty"
+            "phpspec --ansi run -fpretty"
         ],
         "test-acceptance": [
-            "bin/behat --colors"
+            "behat --colors"
         ]
     },
     "autoload-dev": {
