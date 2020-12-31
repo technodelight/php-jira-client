@@ -4,136 +4,118 @@ namespace Technodelight\JiraRestApi;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException as GuzzleClientException;
-use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\Utils;
+use JsonException;
+use Psr\Http\Message\ResponseInterface;
 use Technodelight\JiraRestApi\HttpClient\Config;
+use UnexpectedValueException;
 
 class HttpClient implements Client
 {
-    const API_PATH = '/rest/api/2/';
+    private const API_PATH = '/rest/api/%d/';
+    private GuzzleClient $httpClient;
+    private Config $config;
 
-    /**
-     * @var GuzzleClient
-     */
-    private $httpClient;
-
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @param Config $config
-     */
     public function __construct(Config $config)
     {
         $this->config = $config;
     }
 
-    public function post($url, $data = [])
+    public function post(string $url, array $data = []): array
     {
         try {
-            $result = $this->httpClient()->post($url, ['json' => $data]);
-            return json_decode($result->getBody(), true);
+            return $this->jsonDecode($this->httpClient()->post($url, ['body' => json_encode($data)]));
         } catch (GuzzleClientException $e) {
             throw ClientException::fromException($e);
         }
     }
 
-    public function put($url, $data = [])
+    public function put(string $url, array $data = []): array
     {
         try {
-            $result = $this->httpClient()->put($url, ['json' => $data]);
-            return json_decode($result->getBody(), true);
+            return $this->jsonDecode($this->httpClient()->put($url, ['body' => json_encode($data)]));
         } catch (GuzzleClientException $e) {
             throw ClientException::fromException($e);
         }
     }
 
-    public function get($url)
+    public function get(string $url, array $query = []): array
     {
         try {
-            $result = $this->httpClient()->get($url);
-            return json_decode($result->getBody(), true);
+            return $this->jsonDecode($this->httpClient()->get($url, ['query' => $query]));
         } catch (GuzzleClientException $e) {
             throw ClientException::fromException($e);
         }
     }
 
-    public function delete($url)
+    public function delete(string $url, array $query = []): void
     {
         try {
-            $result = $this->httpClient()->delete($url);
-            return json_decode($result->getBody(), true);
+            $this->httpClient()->delete($url, ['query' => $query]);
         } catch (GuzzleClientException $e) {
             throw ClientException::fromException($e);
         }
     }
 
-    public function multiGet(array $urls)
+    public function multiGet(array $fullUrls): array
     {
         $promises = [];
-        foreach ($urls as $url) {
+        foreach ($fullUrls as $url) {
             $promises[$url] = $this->httpClient()->getAsync($url);
         }
 
-        $responses = Promise\settle($promises)->wait();
+        $responses = Utils::settle($promises)->wait();
         $results = [];
         foreach ($responses as $url => $settle) {
-            if ($settle['state'] != 'fulfilled') {
-                throw new \UnexpectedValueException('Something went wrong while querying JIRA!');
+            if ($settle['state'] !== 'fulfilled') {
+                throw new UnexpectedValueException('Something went wrong while querying JIRA!');
             }
-            /** @var \Psr\Http\Message\ResponseInterface $value */
-            $value = $settle['value'];
-            $results[$url] = json_decode((string) $value->getBody(), true);
+            try {
+                $results[$url] = $this->jsonDecode($settle['value']);
+            } catch (JsonException $e) {
+                $results[$url] = ['exception' => $e];
+            }
         }
 
         return $results;
     }
+//
+//    /**
+//     * @param string $jql
+//     * @param string|null $fields
+//     *
+//     * @return array
+//     */
+//    public function search($jql, $startAt = null, $fields = null, array $expand = null, array $properties = null)
+//    {
+//        try {
+//            $result = $this->httpClient()->post(
+//                'search',
+//                [
+//                    'json' => array_filter([
+//                        'jql' => $jql,
+//                        'startAt' => $startAt,
+//                        'fields' => (array) $fields,
+//                        'expand' => $expand,
+//                        'properties' => $properties,
+//                    ])
+//                ]
+//            );
+//            return json_decode($result->getBody(), true);
+//        } catch (GuzzleClientException $exception) {
+//            throw ClientException::fromException($exception);
+//        }
+//    }
 
-    /**
-     * @param string $jql
-     * @param string|null $fields
-     *
-     * @return array
-     */
-    public function search($jql, $startAt = null, $fields = null, array $expand = null, array $properties = null)
+    public function download(string $url, string $targetFilename, ?callable $progressFunction = null): void
     {
-        try {
-            $result = $this->httpClient()->post(
-                'search',
-                [
-                    'json' => array_filter([
-                        'jql' => $jql,
-                        'startAt' => $startAt,
-                        'fields' => (array) $fields,
-                        'expand' => $expand,
-                        'properties' => $properties,
-                    ])
-                ]
-            );
-            return json_decode($result->getBody(), true);
-        } catch (GuzzleClientException $exception) {
-            throw ClientException::fromException($exception);
-        }
+        $this->httpClient()->get(
+            $url,
+            array_filter(['save_to' => $targetFilename, 'progress' => $progressFunction])
+        );
     }
 
-    public function download($url, $filename, callable $progressFunction = null)
-    {
-        if ($progressFunction) {
-            $this->httpClient()->get(
-                $url,
-                [
-                    'save_to' => $filename,
-                    'progress' => $progressFunction,
-                ]
-            );
-            return;
-        }
-
-        $this->httpClient()->get($url, ['save_to' => $filename]);
-    }
-
-    public function upload($url, $filename)
+    public function upload(string $url, string $sourceFilename): void
     {
         $this->httpClient()->post($url, [
             'headers' => [
@@ -142,8 +124,8 @@ class HttpClient implements Client
             'multipart' => [
                 [
                     'name' => 'file',
-                    'contents' => fopen($filename, 'r'),
-                    'filename' => pathinfo($filename, PATHINFO_BASENAME),
+                    'contents' => fopen($sourceFilename, 'rb'),
+                    'filename' => pathinfo($sourceFilename, PATHINFO_BASENAME),
                     'headers' => [
                         'X-Atlassian-Token' => 'no-check'
                     ],
@@ -152,41 +134,54 @@ class HttpClient implements Client
         ]);
     }
 
-    private function apiUrl($projectDomain)
+    private function apiUrl(string $projectDomain, int $apiVersion): string
     {
         $parts = parse_url($projectDomain);
         if (count($parts) === 1 && isset($parts['path'])) {
             $parts['host'] = $parts['path'];
             unset($parts['path']);
         }
-        $url = join('', array_filter([
-            isset($parts['user']) && isset($parts['pass']) ? $parts['user'] . ':' . $parts['pass'] . '@' : null,
+        $url = implode('', array_filter([
+            isset($parts['user'], $parts['pass']) ? $parts['user'] . ':' . $parts['pass'] . '@' : null,
             $parts['host'],
             isset($parts['port']) ? ':' . $parts['port'] : null,
         ]));
+
         return sprintf(
             '%s://%s%s',
-            isset($parts['proto']) ? $parts['proto'] : 'https',
+            $parts['proto'] ?? 'https',
             $url,
-            self::API_PATH
+            sprintf(self::API_PATH, $apiVersion)
         );
     }
 
-    /**
-     * @return GuzzleClient
-     */
-    private function httpClient()
+    private function httpClient(): GuzzleClient
     {
         if (!isset($this->httpClient)) {
             $this->httpClient = new GuzzleClient(
                 [
-                    'base_uri' => $this->apiUrl($this->config->domain()),
-                    'auth' => [$this->config->username(), $this->config->password()],
+                    'base_uri' => $this->apiUrl($this->config->domain(), $this->config->apiVersion()),
+                    'auth' => [$this->config->username(), $this->config->apiKey()],
                     'allow_redirects' => true,
                 ]
             );
         }
 
         return $this->httpClient;
+    }
+
+    /**
+     * @param ResponseInterface $value
+     * @return array
+     * @throws JsonException
+     */
+    public function jsonDecode(ResponseInterface $value): array
+    {
+        $result = json_decode((string)$value->getBody(), true, null, JSON_THROW_ON_ERROR);
+        if (!is_array($result)) {
+            throw new UnexpectedValueException('Array expected, got %s', gettype($result));
+        }
+
+        return $result;
     }
 }

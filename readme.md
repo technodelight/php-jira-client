@@ -6,7 +6,7 @@ Unofficial client for Atlassian Jira, through REST API.
 
 ```php
 use Technodelight\Jira\Domain\Issue\IssueKey;
-use Technodelight\JiraRestApi\Api;
+use Technodelight\JiraRestApi\OldApi;
 use Technodelight\JiraRestApi\HttpClient;
 use Technodelight\JiraRestApi\HttpClient\Config;
 
@@ -22,7 +22,7 @@ class MyConfig implements Config
         return 'myinstance.atlassian.net';
     }
 }
-$client = new Api(new HttpClient(new MyConfig()));
+$client = new OldApi(new HttpClient(new MyConfig()));
 $issue = $client->retrieveIssue(IssueKey::fromString('TEST-123'));
 print $issue->assignee() . PHP_EOL;
 ```

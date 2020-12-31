@@ -1,20 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Technodelight\JiraRestApi;
 
 interface Client
 {
-    /**
-     * @param string $url
-     * @param array $data
-     * @return mixed
-     */
-    public function post($url, $data = []);
-    public function put($url, $data = []);
-    public function get($url);
-    public function delete($url);
-    public function multiGet(array $urls);
-    public function search($jql, $startAt = null, $fields = null, array $expand = null, array $properties = null);
-    public function download($url, $filename, callable $progressFunction = null);
-    public function upload($url, $filename);
+    public function post(string $url, array $data = []): array;
+    public function put(string $url, array $data = []): array;
+    public function get(string $url, array $query = []): array;
+    public function delete(string $url, array $query = []): void;
+    public function multiGet(array $fullUrls): array;
+    public function download(string $url, string $targetFilename, ?callable $progressFunction = null): void;
+    public function upload(string $url, string $sourceFilename): void;
 }
