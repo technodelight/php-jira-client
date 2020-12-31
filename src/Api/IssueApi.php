@@ -6,6 +6,8 @@ namespace Technodelight\JiraRestApi\Api;
 
 use Technodelight\Jira\Domain\Issue;
 use Technodelight\Jira\Domain\Issue\IssueKey;
+use Technodelight\Jira\Domain\Issue\Meta;
+use Technodelight\JiraRestApi\Api\IssueApi\IssueCreateMeta;
 use Technodelight\JiraRestApi\Api\IssueApi\IssueNotificationData;
 use Technodelight\JiraRestApi\Api\IssueApi\IssueUpdateData;
 use Technodelight\JiraRestApi\Client;
@@ -118,5 +120,44 @@ class IssueApi
     public function notify(IssueKey $issueKey, IssueNotificationData $notificationData): void
     {
         $this->client->post(sprintf('issue/%s/notify', $issueKey), $notificationData->asArray());
+    }
+
+    /**
+     * Returns details of projects, issue types within projects, and, when requested, the create screen fields for each
+     * issue type for the user. Use the information to populate the requests in Create issue and Create issues.
+     * The request can be restricted to specific projects or issue types using the query parameters. The response will
+     * contain information for the valid projects, issue types, or project and issue type combinations requested. Note
+     * that invalid project, issue type, or project and issue type combinations do not generate errors.
+     *
+     * @see https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-createmeta-get
+     * @return IssueCreateMeta
+     */
+    public function createMeta(): IssueCreateMeta
+    {
+        return IssueCreateMeta::fromArray($this->client->get('issue/createmeta'));
+    }
+
+    /**
+     * Returns the edit screen fields for an issue that are visible to and editable by the user. Use the information to
+     * populate the requests in Edit issue.
+     *
+     * @see https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-editmeta-get
+     * @param IssueKey $issueKey
+     * @param bool $overrideScreenSecurity
+     * @param bool $overrideEditableFlag
+     * @return Meta
+     */
+    public function editMeta(IssueKey $issueKey, bool $overrideScreenSecurity = false, bool $overrideEditableFlag = false): Meta
+    {
+        return Meta::fromArrayAndIssueKey(
+            $this->client->get(
+                sprintf('issue/%s/editmeta', $issueKey),
+                array_filter([
+                    'overrideScreenSecurity' => $overrideScreenSecurity,
+                    'overrideEditableFlag' => $overrideEditableFlag,
+                ])
+            ),
+            $issueKey
+        );
     }
 }

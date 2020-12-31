@@ -6,7 +6,9 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Technodelight\Jira\Domain\Issue;
 use Technodelight\Jira\Domain\Issue\IssueKey;
+use Technodelight\Jira\Domain\Issue\Meta;
 use Technodelight\JiraRestApi\Api\IssueApi;
+use Technodelight\JiraRestApi\Api\IssueApi\IssueCreateMeta;
 use Technodelight\JiraRestApi\Api\IssueApi\IssueNotificationData;
 use Technodelight\JiraRestApi\Api\IssueApi\IssueUpdateData;
 use Technodelight\JiraRestApi\Client;
@@ -64,5 +66,19 @@ class IssueApiSpec extends ObjectBehavior
         $client->post(Argument::type('string'), Argument::type('array'))->shouldBeCalled();
 
         $this->notify(IssueKey::fromString('DEV-123'), IssueNotificationData::createEmpty());
+    }
+
+    function it_gets_create_metadata(Client $client)
+    {
+        $client->get(Argument::type('string'))->shouldBeCalled()->willReturn([]);
+
+        $this->createMeta()->shouldBeAnInstanceOf(IssueCreateMeta::class);
+    }
+
+    function it_gets_edit_metadata(Client $client)
+    {
+        $client->get(Argument::type('string'), Argument::type('array'))->shouldBeCalled()->willReturn([]);
+
+        $this->editMeta(IssueKey::fromString('DEV-123'))->shouldBeAnInstanceOf(Meta::class);
     }
 }
