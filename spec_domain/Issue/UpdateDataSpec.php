@@ -2,6 +2,7 @@
 
 namespace spec_domain\Technodelight\Jira\Domain\Issue;
 
+use Exception;
 use PhpSpec\ObjectBehavior;
 use Technodelight\Jira\Domain\Issue\UpdateData;
 use Technodelight\Jira\Domain\Transition;
@@ -84,5 +85,24 @@ class UpdateDataSpec extends ObjectBehavior
                 ]
             ]
         ]);
+    }
+
+    function it_can_have_properties()
+    {
+        $this->addProperty('property', 'value');
+        $this->asArray()->shouldReturn([
+            'properties' => [
+                ['key' => 'property', 'value' => 'value'],
+            ]
+        ]);
+    }
+
+    function it_can_have_fields_and_updates_mutually_exclusive()
+    {
+        $this->addField('fieldName', 'fieldValue');
+        $this->shouldThrow(Exception::class)->during('add', ['fieldName', 'fieldValue']);
+
+        $this->add('updateField', 'value');
+        $this->shouldThrow(Exception::class)->during('addField', ['updateField', 'value']);
     }
 }

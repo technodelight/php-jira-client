@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Technodelight\Jira\Domain\Issue;
 
+use InvalidArgumentException;
 use Technodelight\Jira\Domain\Transition;
 
 final class UpdateData
@@ -16,6 +17,7 @@ final class UpdateData
     private array $edits = [];
     private array $removes = [];
     private array $updates = [];
+    private array $properties = [];
 
     public static function createEmpty(): self
     {
@@ -27,7 +29,8 @@ final class UpdateData
         return array_filter([
             'transition' => $this->transition ? ['id' => $this->transition->id()]: null,
             'fields' => !empty($this->fields) ? $this->fields : null,
-            'update' => !empty($this->updates) ? $this->prepareUpdates() : null
+            'update' => !empty($this->updates) ? $this->prepareUpdates() : null,
+            'properties' => !empty($this->properties) ? $this->properties : null,
         ], static function($value) { return $value !== null; });
     }
 
@@ -75,6 +78,11 @@ final class UpdateData
 
     public function addField(string $fieldName, $fieldValue): self
     {
+        if (in_array($fieldName, $this->updates)) {
+            throw new InvalidArgumentException(
+                sprintf('Cannot add field "%s" as it\'s already added as update', $fieldName)
+            );
+        }
         $this->fields[$fieldName] = $fieldValue;
 
         return $this;
@@ -82,33 +90,51 @@ final class UpdateData
 
     public function add(string $fieldName, $fieldValue): self
     {
+        $this->addUniqueUpdate($fieldName);
         $this->adds[$fieldName] = $fieldValue;
-        $this->updates[] = $fieldName;
 
         return $this;
     }
 
     public function set(string $fieldName, $fieldValue): self
     {
+        $this->addUniqueUpdate($fieldName);
         $this->sets[$fieldName] = $fieldValue;
-        $this->updates[] = $fieldName;
 
         return $this;
     }
 
     public function edit(string $fieldName, $fieldValue): self
     {
+        $this->addUniqueUpdate($fieldName);
         $this->edits[$fieldName] = $fieldValue;
-        $this->updates[] = $fieldName;
 
         return $this;
     }
 
     public function remove(string $fieldName, $fieldValue): self
     {
+        $this->addUniqueUpdate($fieldName);
         $this->removes[$fieldName] = $fieldValue;
-        $this->updates[] = $fieldName;
 
         return $this;
+    }
+
+    public function addProperty(string $property, $value): self
+    {
+        $this->properties[] = ['key' => $property, 'value' => $value];
+
+        return $this;
+    }
+
+    private function addUniqueUpdate($fieldName): void
+    {
+        if (isset($this->fields[$fieldName])) {
+            throw new InvalidArgumentException(
+                sprintf('Cannot add update on field "%s" as it\'s already set in "fields" section', $fieldName)
+            );
+        }
+
+        $this->updates[] = $fieldName;
     }
 }
