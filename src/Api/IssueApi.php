@@ -52,6 +52,7 @@ class IssueApi
      * operation. Using a “field_id”: field_value construction in the fields parameter is a shortcut of “set” operation
      * in the update parameter.
      *
+     * @see https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-put
      * @param IssueKey $issueKey
      * @param UpdateData $updateData
      * @return Issue
@@ -68,6 +69,7 @@ class IssueApi
      * An issue cannot be deleted if it has one or more subtasks.
      * To delete an issue with subtasks, set deleteSubtasks. This causes the issue's subtasks to be deleted with the issue.
      *
+     * @see https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-delete
      * @param IssueKey $issueKey
      */
     public function remove(IssueKey $issueKey): void

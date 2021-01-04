@@ -12,6 +12,9 @@ final class UpdateData
     private ?Transition $transition = null;
     private array $fields = [];
     private array $adds = [];
+    private array $sets = [];
+    private array $edits = [];
+    private array $removes = [];
     private array $updates = [];
 
     public static function createEmpty(): self
@@ -39,6 +42,15 @@ final class UpdateData
             $data[$fieldName] = !empty($data[$fieldName]) ? $data[$fieldName] : [];
             foreach ($this->adds as $fieldName => $values) {
                 $data[$fieldName][] = ['add' => $values];
+            }
+            foreach ($this->sets as $fieldName => $values) {
+                $data[$fieldName][] = ['set' => $values];
+            }
+            foreach ($this->edits as $fieldName => $values) {
+                $data[$fieldName][] = ['edit' => $values];
+            }
+            foreach ($this->removes as $fieldName => $values) {
+                $data[$fieldName][] = ['remove' => $values];
             }
         }
 
@@ -71,6 +83,30 @@ final class UpdateData
     public function add(string $fieldName, $fieldValue): self
     {
         $this->adds[$fieldName] = $fieldValue;
+        $this->updates[] = $fieldName;
+
+        return $this;
+    }
+
+    public function set(string $fieldName, $fieldValue): self
+    {
+        $this->sets[$fieldName] = $fieldValue;
+        $this->updates[] = $fieldName;
+
+        return $this;
+    }
+
+    public function edit(string $fieldName, $fieldValue): self
+    {
+        $this->edits[$fieldName] = $fieldValue;
+        $this->updates[] = $fieldName;
+
+        return $this;
+    }
+
+    public function remove(string $fieldName, $fieldValue): self
+    {
+        $this->removes[$fieldName] = $fieldValue;
         $this->updates[] = $fieldName;
 
         return $this;

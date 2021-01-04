@@ -49,4 +49,40 @@ class UpdateDataSpec extends ObjectBehavior
             ]
         ]);
     }
+
+    function it_can_have_set_updates()
+    {
+        $this->set('fieldName', 'fieldValue');
+        $this->asArray()->shouldReturn([
+            'update' => [
+                'fieldName' => [
+                    ['set' => 'fieldValue']
+                ]
+            ]
+        ]);
+    }
+
+    function it_can_have_edit_updates()
+    {
+        $this->edit('fieldName', 'fieldValue');
+        $this->asArray()->shouldReturn([
+            'update' => [
+                'fieldName' => [
+                    ['edit' => 'fieldValue']
+                ]
+            ]
+        ]);
+    }
+
+    function it_can_have_remove_updates()
+    {
+        $this->remove('fieldName', 'fieldValue');
+        $this->asArray()->shouldReturn([
+            'update' => [
+                'fieldName' => [
+                    ['remove' => 'fieldValue']
+                ]
+            ]
+        ]);
+    }
 }
