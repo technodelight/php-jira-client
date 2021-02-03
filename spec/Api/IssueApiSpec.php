@@ -11,6 +11,7 @@ use Technodelight\Jira\Domain\Issue\Meta;
 use Technodelight\Jira\Domain\Issue\CreateMeta;
 use Technodelight\Jira\Domain\Issue\NotificationDetails;
 use Technodelight\Jira\Domain\Issue\UpdateData;
+use Technodelight\JiraRestApi\Api\WorklogApi;
 use Technodelight\JiraRestApi\Client;
 
 class IssueApiSpec extends ObjectBehavior
@@ -65,7 +66,7 @@ class IssueApiSpec extends ObjectBehavior
             'values' => []
         ]);
 
-        $this->changeLogs(IssueKey::fromString('DEV-123'))->shouldBeAnInstanceOf(Collection::class);
+        $this->changelogs(IssueKey::fromString('DEV-123'))->shouldBeAnInstanceOf(Collection::class);
     }
 
     function it_sends_notifications(Client $client)
@@ -87,5 +88,10 @@ class IssueApiSpec extends ObjectBehavior
         $client->get(Argument::type('string'), Argument::type('array'))->shouldBeCalled()->willReturn([]);
 
         $this->editMeta(IssueKey::fromString('DEV-123'))->shouldBeAnInstanceOf(Meta::class);
+    }
+
+    function it_deals_with_worklogs()
+    {
+        $this->worklog()->shouldBeAnInstanceOf(WorklogApi::class);
     }
 }

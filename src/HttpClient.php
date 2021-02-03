@@ -21,19 +21,29 @@ class HttpClient implements Client
         $this->config = $config;
     }
 
-    public function post(string $url, array $data = []): array
+    public function post(string $url, array $data = [], array $query = []): array
     {
         try {
-            return $this->jsonDecode($this->httpClient()->post($url, ['body' => json_encode($data)]));
+            return $this->jsonDecode(
+                $this->httpClient()->post(
+                    $url,
+                    array_filter(['body' => json_encode($data), 'query' => $query])
+                )
+            );
         } catch (GuzzleClientException $e) {
             throw ClientException::fromException($e);
         }
     }
 
-    public function put(string $url, array $data = []): array
+    public function put(string $url, array $data = [], array $query = []): array
     {
         try {
-            return $this->jsonDecode($this->httpClient()->put($url, ['body' => json_encode($data)]));
+            return $this->jsonDecode(
+                $this->httpClient()->put(
+                    $url,
+                    array_filter(['body' => json_encode($data), 'query' => $query])
+                )
+            );
         } catch (GuzzleClientException $e) {
             throw ClientException::fromException($e);
         }
@@ -42,7 +52,7 @@ class HttpClient implements Client
     public function get(string $url, array $query = []): array
     {
         try {
-            return $this->jsonDecode($this->httpClient()->get($url, ['query' => $query]));
+            return $this->jsonDecode($this->httpClient()->get($url, array_filter(['query' => $query])));
         } catch (GuzzleClientException $e) {
             throw ClientException::fromException($e);
         }
@@ -170,11 +180,6 @@ class HttpClient implements Client
         return $this->httpClient;
     }
 
-    /**
-     * @param ResponseInterface $value
-     * @return array
-     * @throws JsonException
-     */
     public function jsonDecode(ResponseInterface $value): array
     {
         $result = json_decode((string)$value->getBody(), true, null, JSON_THROW_ON_ERROR);

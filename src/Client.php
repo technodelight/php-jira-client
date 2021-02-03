@@ -6,8 +6,8 @@ namespace Technodelight\JiraRestApi;
 
 interface Client
 {
-    public function post(string $url, array $data = []): array;
-    public function put(string $url, array $data = []): array;
+    public function post(string $url, array $data = [], array $query = []): array;
+    public function put(string $url, array $data = [], array $query = []): array;
     public function get(string $url, array $query = []): array;
     public function delete(string $url, array $query = []): void;
     public function multiGet(array $fullUrls): array;

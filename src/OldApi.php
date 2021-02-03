@@ -904,7 +904,6 @@ class OldApi
         return DateHelper::dateTimeFromJira($jiraDate)->format(DateHelper::FORMAT_FROM_JIRA);
     }
 
-
     private function queryStringFromParams(array $query): string
     {
         $params = http_build_query(array_filter($query, function($value) { return !is_null($value); }));

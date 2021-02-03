@@ -106,11 +106,12 @@ class IssueApi
      * @param int|null $maxResults
      * @return ChangelogCollection
      */
-    public function changeLogs(IssueKey $issueKey, ?int $startAt = null, ?int $maxResults = null): ChangelogCollection
+    public function changelogs(IssueKey $issueKey, ?int $startAt = null, ?int $maxResults = null): ChangelogCollection
     {
         return ChangelogCollection::fromResult(
             $this->client->get(
-                sprintf('issue/%s/changelogs', $issueKey), array_filter(['startAt' => $startAt, 'maxResults' => $maxResults])
+                sprintf('issue/%s/changelogs', $issueKey),
+                array_filter(['startAt' => $startAt, 'maxResults' => $maxResults])
             )
         );
     }
@@ -152,17 +153,32 @@ class IssueApi
      * @param bool $overrideEditableFlag
      * @return Meta
      */
-    public function editMeta(IssueKey $issueKey, bool $overrideScreenSecurity = false, bool $overrideEditableFlag = false): Meta
-    {
+    public function editMeta(
+        IssueKey $issueKey,
+        bool $overrideScreenSecurity = false,
+        bool $overrideEditableFlag = false
+    ): Meta {
         return Meta::fromArrayAndIssueKey(
             $this->client->get(
                 sprintf('issue/%s/editmeta', $issueKey),
-                array_filter([
-                    'overrideScreenSecurity' => $overrideScreenSecurity,
-                    'overrideEditableFlag' => $overrideEditableFlag,
-                ])
+                array_filter(
+                    [
+                        'overrideScreenSecurity' => $overrideScreenSecurity,
+                        'overrideEditableFlag' => $overrideEditableFlag,
+                    ]
+                )
             ),
             $issueKey
         );
+    }
+
+    public function worklog(): WorklogApi
+    {
+        static $worklogApi;
+        if (!$worklogApi) {
+            $worklogApi = new WorklogApi($this->client);
+        }
+
+        return $worklogApi;
     }
 }
