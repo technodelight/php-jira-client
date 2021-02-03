@@ -35,10 +35,50 @@ class WorklogApi
                 'timeSpentSeconds' => $worklog->timeSpentSeconds(),
             ],
             [
-                'adjustEstimate' => 'auto'
+                'adjustEstimate' => 'auto',
             ]
         );
 
         return Worklog::fromArray(DateHelper::normaliseDateFields($result), $worklog->issueIdentifier());
+    }
+
+    /**
+     * Updates a worklog.
+     * Time tracking must be enabled in Jira, otherwise this operation returns an error. For more information, see Configuring time tracking.
+     *
+     * @see https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-worklogs/#api-rest-api-3-issue-issueidorkey-worklog-id-put
+     * @param Worklog $worklog
+     * @return Worklog
+     */
+    public function update(Worklog $worklog): Worklog
+    {
+        $result = $this->client->put(
+            sprintf('issue/%s/worklog/%s', $worklog->issueIdentifier(), $worklog->id()),
+            [
+                'comment' => $worklog->comment(),
+                'started' => DateHelper::dateTimeToJira($worklog->date()),
+                'timeSpentSeconds' => $worklog->timeSpentSeconds(),
+            ],
+            [
+                'adjustEstimate' => 'auto',
+            ]
+        );
+
+        return Worklog::fromArray(DateHelper::normaliseDateFields($result), $worklog->issueIdentifier());
+    }
+
+    /**
+     * Deletes a worklog from an issue.
+     * Time tracking must be enabled in Jira, otherwise this operation returns an error. For more information, see Configuring time tracking.
+     *
+     * @see https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-worklogs/#api-rest-api-3-issue-issueidorkey-worklog-id-delete
+     * @param Worklog $worklog
+     */
+    public function delete(Worklog $worklog): void
+    {
+        $this->client->delete(
+            sprintf('issue/%s/worklog/%s', $worklog->issueIdentifier(), $worklog->id()),
+            ['adjustEstimate' => 'auto']
+        );
     }
 }
